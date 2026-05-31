@@ -28,11 +28,12 @@ echo ""
 # ============================================================
 # STEP 1: ensure galaxy repo is enabled
 # ============================================================
-log "Checking mirrorlist..."
-if ! grep -q "^Server" /etc/pacman.d/mirrorlist 2>/dev/null; then
-    log "No active servers in mirrorlist -- uncommenting existing ones..."
-    sudo sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
-fi
+log "Fixing mirrorlist..."
+sudo tee /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
+Server = https://mirror1.artixlinux.org/repos/$repo/os/$arch
+Server = https://mirror2.artixlinux.org/repos/$repo/os/$arch
+Server = https://artix.nirn.net/repos/$repo/os/$arch
+EOF
 
 log "Checking Artix repos in pacman.conf..."
 if ! grep -q "^\[galaxy\]" /etc/pacman.conf; then
