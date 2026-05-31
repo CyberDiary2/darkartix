@@ -28,9 +28,22 @@ echo ""
 # ============================================================
 # STEP 1: ensure galaxy repo is enabled
 # ============================================================
-log "Checking Artix repos..."
+log "Checking internet connection..."
+if ! curl -s --max-time 5 https://mirror1.artixlinux.org > /dev/null; then
+    die "No internet connection detected. Check your network and try again."
+fi
+
+log "Writing Artix mirrors directly to mirrorlist..."
+sudo tee /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
+Server = https://mirror1.artixlinux.org/$repo/os/$arch
+Server = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch
+Server = https://artix.nirn.net/$repo/os/$arch
+Server = https://ftp.crifo.org/artix-linux/$repo/os/$arch
+EOF
+
+log "Checking Artix repos in pacman.conf..."
 if ! grep -q "^\[galaxy\]" /etc/pacman.conf; then
-    log "Adding missing Artix repos to pacman.conf..."
+    log "Adding system/world/galaxy repos..."
     sudo tee -a /etc/pacman.conf > /dev/null << 'EOF'
 
 [system]
@@ -42,29 +55,6 @@ Include = /etc/pacman.d/mirrorlist
 [galaxy]
 Include = /etc/pacman.d/mirrorlist
 EOF
-fi
-
-log "Checking mirrorlist..."
-if [[ ! -s /etc/pacman.d/mirrorlist ]]; then
-    log "Mirrorlist is empty -- adding default mirrors..."
-    sudo tee /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
-Server = https://mirror1.artixlinux.org/$repo/os/$arch
-Server = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch
-Server = https://artix.nirn.net/$repo/os/$arch
-Server = https://ftp.crifo.org/artix-linux/$repo/os/$arch
-EOF
-else
-    # check if all lines are commented out
-    if ! grep -q "^Server" /etc/pacman.d/mirrorlist; then
-        log "Mirrorlist has no active servers -- adding defaults..."
-        echo "" | sudo tee -a /etc/pacman.d/mirrorlist > /dev/null
-        sudo tee -a /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
-Server = https://mirror1.artixlinux.org/$repo/os/$arch
-Server = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch
-Server = https://artix.nirn.net/$repo/os/$arch
-Server = https://ftp.crifo.org/artix-linux/$repo/os/$arch
-EOF
-    fi
 fi
 
 # ============================================================
