@@ -244,13 +244,20 @@ sudo mkdir -p "$PROFILE_DIR/airootfs/home/liveuser/Desktop"
 # STEP 8: generate logo with imagemagick
 # ============================================================
 log "Generating DarkArtix logo..."
-convert -size 200x200 xc:'#2d353b' \
-    -fill '#a7c080' \
-    -font 'DejaVu-Sans-Bold' \
-    -pointsize 16 \
-    -gravity center \
-    -annotate 0 'DarkArtix' \
-    /tmp/darkartix-logo.png
+sudo pacman -S --noconfirm --needed ttf-dejavu
+FONT=$(convert -list font | grep -i "dejavu-sans-bold\|DejaVuSans-Bold\|DejaVu-Sans-Bold" | awk '{print $2}' | head -1)
+if [[ -z "$FONT" ]]; then
+    # no dejavu found, just make a plain colored box
+    convert -size 200x200 xc:'#2d353b' /tmp/darkartix-logo.png
+else
+    convert -size 200x200 xc:'#2d353b' \
+        -fill '#a7c080' \
+        -font "$FONT" \
+        -pointsize 16 \
+        -gravity center \
+        -annotate 0 'DarkArtix' \
+        /tmp/darkartix-logo.png
+fi
 
 sudo cp /tmp/darkartix-logo.png "$PROFILE_DIR/airootfs/etc/calamares/branding/darkartix/logo.png"
 sudo cp /tmp/darkartix-logo.png "$PROFILE_DIR/airootfs/usr/share/darkartix/logo.png"
