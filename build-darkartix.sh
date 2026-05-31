@@ -26,14 +26,47 @@ echo "=== DarkArtix ISO build script ==="
 echo ""
 
 # ============================================================
-# STEP 1: install build dependencies
+# STEP 1: ensure galaxy repo is enabled
 # ============================================================
-log "Installing build dependencies..."
-sudo pacman -Syu --noconfirm
-sudo pacman -S --noconfirm --needed artools git base-devel imagemagick
+log "Checking Artix repos..."
+if ! grep -q "^\[galaxy\]" /etc/pacman.conf; then
+    log "Adding missing Artix repos to pacman.conf..."
+    sudo tee -a /etc/pacman.conf > /dev/null << 'EOF'
+
+[system]
+Include = /etc/pacman.d/mirrorlist
+
+[world]
+Include = /etc/pacman.d/mirrorlist
+
+[galaxy]
+Include = /etc/pacman.d/mirrorlist
+EOF
+fi
 
 # ============================================================
-# STEP 2: add blackarch repo
+# STEP 2: install build dependencies
+# ============================================================
+log "Updating system..."
+sudo pacman -Syu --noconfirm
+sudo pacman -S --noconfirm --needed git base-devel imagemagick
+
+log "Installing artools..."
+if sudo pacman -S --noconfirm --needed artools 2>/dev/null; then
+    log "artools installed from repo."
+else
+    log "artools not found in repos -- installing from AUR..."
+    cd /tmp
+    rm -rf artools-aur
+    git clone https://aur.archlinux.org/artools.git artools-aur
+    cd artools-aur
+    makepkg -si --noconfirm
+    cd ~
+    rm -rf /tmp/artools-aur
+fi
+
+# ============================================================
+# STEP 3: add blackarch repo
 # ============================================================
 if ! grep -q "\[blackarch\]" /etc/pacman.conf; then
     log "Adding BlackArch repo..."
