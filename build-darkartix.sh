@@ -44,6 +44,29 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 fi
 
+log "Checking mirrorlist..."
+if [[ ! -s /etc/pacman.d/mirrorlist ]]; then
+    log "Mirrorlist is empty -- adding default mirrors..."
+    sudo tee /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
+Server = https://mirror1.artixlinux.org/$repo/os/$arch
+Server = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch
+Server = https://artix.nirn.net/$repo/os/$arch
+Server = https://ftp.crifo.org/artix-linux/$repo/os/$arch
+EOF
+else
+    # check if all lines are commented out
+    if ! grep -q "^Server" /etc/pacman.d/mirrorlist; then
+        log "Mirrorlist has no active servers -- adding defaults..."
+        echo "" | sudo tee -a /etc/pacman.d/mirrorlist > /dev/null
+        sudo tee -a /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
+Server = https://mirror1.artixlinux.org/$repo/os/$arch
+Server = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch
+Server = https://artix.nirn.net/$repo/os/$arch
+Server = https://ftp.crifo.org/artix-linux/$repo/os/$arch
+EOF
+    fi
+fi
+
 # ============================================================
 # STEP 2: install build dependencies
 # ============================================================
