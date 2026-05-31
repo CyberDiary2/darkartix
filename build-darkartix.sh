@@ -33,13 +33,11 @@ if ! curl -s --max-time 10 https://artixlinux.org > /dev/null; then
     die "No internet connection. Connect to wifi first then rerun the script."
 fi
 
-log "Writing Artix mirrors to mirrorlist..."
-sudo tee /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
-Server = https://mirror1.artixlinux.org/$repo/os/$arch
-Server = https://mirror2.artixlinux.org/$repo/os/$arch
-Server = https://artix.nirn.net/$repo/os/$arch
-Server = https://mirrors.lug.mtu.edu/artix-linux/$repo/os/$arch
-EOF
+log "Checking mirrorlist..."
+if ! grep -q "^Server" /etc/pacman.d/mirrorlist 2>/dev/null; then
+    log "No active servers in mirrorlist -- uncommenting existing ones..."
+    sudo sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
+fi
 
 log "Checking Artix repos in pacman.conf..."
 if ! grep -q "^\[galaxy\]" /etc/pacman.conf; then
