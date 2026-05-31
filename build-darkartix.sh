@@ -47,8 +47,6 @@ fi
 # ============================================================
 # STEP 2: install build dependencies
 # ============================================================
-log "Updating system..."
-sudo pacman -Syu --noconfirm
 sudo pacman -S --noconfirm --needed git base-devel imagemagick
 
 log "Installing artools..."
