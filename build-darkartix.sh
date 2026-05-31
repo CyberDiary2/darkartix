@@ -29,16 +29,16 @@ echo ""
 # STEP 1: ensure galaxy repo is enabled
 # ============================================================
 log "Checking internet connection..."
-if ! curl -s --max-time 5 https://mirror1.artixlinux.org > /dev/null; then
-    die "No internet connection detected. Check your network and try again."
+if ! curl -s --max-time 10 https://artixlinux.org > /dev/null; then
+    die "No internet connection. Connect to wifi first then rerun the script."
 fi
 
-log "Writing Artix mirrors directly to mirrorlist..."
+log "Writing Artix mirrors to mirrorlist..."
 sudo tee /etc/pacman.d/mirrorlist > /dev/null << 'EOF'
 Server = https://mirror1.artixlinux.org/$repo/os/$arch
-Server = https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch
+Server = https://mirror2.artixlinux.org/$repo/os/$arch
 Server = https://artix.nirn.net/$repo/os/$arch
-Server = https://ftp.crifo.org/artix-linux/$repo/os/$arch
+Server = https://mirrors.lug.mtu.edu/artix-linux/$repo/os/$arch
 EOF
 
 log "Checking Artix repos in pacman.conf..."
