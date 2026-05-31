@@ -28,11 +28,6 @@ echo ""
 # ============================================================
 # STEP 1: ensure galaxy repo is enabled
 # ============================================================
-log "Checking internet connection..."
-if ! curl -s --max-time 10 --head https://archlinux.org | grep -q "200\|301\|302"; then
-    die "No internet connection. Connect to wifi first then rerun the script."
-fi
-
 log "Checking mirrorlist..."
 if ! grep -q "^Server" /etc/pacman.d/mirrorlist 2>/dev/null; then
     log "No active servers in mirrorlist -- uncommenting existing ones..."
